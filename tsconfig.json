@@ -9,15 +9,9 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
-    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
-    "noEmit": true
+    "noEmit": false
   },
-  "ts-node": {
-    "esm": true,
-    "extensions": [".ts"],
-    "compilerOptions": {
-      "module": "es2022"
-    }
-  }
+  "include": ["src/**/*"]
 }
+

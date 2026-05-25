@@ -1,18 +1,14 @@
 {
   "name": "animal-warriors-api",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "API para el juego Animal Warriors",
+  "main": "dist/server.js",
+  "type": "module",
   "scripts": {
     "dev": "nodemon src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node dist/server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "module",
   "dependencies": {
     "express": "^5.2.1"
   },
