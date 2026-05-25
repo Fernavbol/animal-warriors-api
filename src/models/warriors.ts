@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-// Interfaces para tipos de datos
+// Interfaces
 export interface Raza {
   id: string;
   nombre: string;
@@ -26,13 +26,15 @@ export interface Warrior {
   poderes: { nombre: string; danoBase: number; consumoCosmo: number }[];
 }
 
-// Interfaces extendidas con Document para Mongoose
 export interface IWarrior extends Warrior, Document {}
 
 const WarriorSchema: Schema = new Schema({
-  // unique: true aquí es suficiente para crear el índice de forma eficiente
-  nombre: { type: String, required: true, unique: true, trim: true },
-  razaId: { type: String, required: true },
+  nombre: { 
+    type: String, 
+    required: [true, 'El nombre es obligatorio'], 
+    trim: true 
+  },
+  razaId: { type: String, required: [true, 'La raza es obligatoria'] },
   armaId: { type: String },
   vida: { type: Number, default: 100 },
   cosmo: { type: Number, default: 50 },
@@ -47,7 +49,7 @@ const WarriorSchema: Schema = new Schema({
   }]
 }, { timestamps: true });
 
-// [AJUSTE]: Eliminamos la línea WarriorSchema.index({ nombre: 1 }, { unique: true });
-// porque ya está definido en la propiedad "nombre" del esquema.
+// Índice único para evitar duplicados por nombre
+WarriorSchema.index({ nombre: 1 }, { unique: true });
 
 export const WarriorModel = mongoose.model<IWarrior>('Warrior', WarriorSchema);
