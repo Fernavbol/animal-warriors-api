@@ -1,8 +1,9 @@
 import express, { Request, Response } from 'express';
-import { Warrior, Raza, Arma } from './models/Warrior';
-import { AnimalWarriors, Razas, Armas } from './database/memoria'; 
+// Estas son las rutas corregidas con la extensión .js
+import { Warrior, Raza, Arma } from './models/Warrior.js';
+import { AnimalWarriors, Razas, Armas } from './database/memoria.js';
 
-const app = express(); // <-- ¡FALTABA ESTA LÍNEA! Inicializa Express
+const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
@@ -135,7 +136,5 @@ app.post('/api/v1/battles/match', (req: Request, res: Response) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`===================================================`);
-    console.log(` Servidor corriendo en: http://localhost:${PORT}`);
-    console.log(`===================================================`);
+    console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
