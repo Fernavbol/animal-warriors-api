@@ -30,7 +30,7 @@ export interface Warrior {
 export interface IWarrior extends Warrior, Document {}
 
 const WarriorSchema: Schema = new Schema({
-  // unique: true evita guerreros con el mismo nombre
+  // unique: true aquí es suficiente para crear el índice de forma eficiente
   nombre: { type: String, required: true, unique: true, trim: true },
   razaId: { type: String, required: true },
   armaId: { type: String },
@@ -45,9 +45,9 @@ const WarriorSchema: Schema = new Schema({
     danoBase: { type: Number, required: true },
     consumoCosmo: { type: Number, required: true }
   }]
-}, { timestamps: true }); // Agrega createdAt y updatedAt automáticamente
+}, { timestamps: true });
 
-// Crear el índice único explícitamente por si acaso
-WarriorSchema.index({ nombre: 1 }, { unique: true });
+// [AJUSTE]: Eliminamos la línea WarriorSchema.index({ nombre: 1 }, { unique: true });
+// porque ya está definido en la propiedad "nombre" del esquema.
 
 export const WarriorModel = mongoose.model<IWarrior>('Warrior', WarriorSchema);
