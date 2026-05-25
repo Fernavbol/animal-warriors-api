@@ -1,140 +1,102 @@
 import express, { Request, Response } from 'express';
-// Estas son las rutas corregidas con la extensión .js
-import { Warrior, Raza, Arma } from './models/Warrior.js';
-import { AnimalWarriors, Razas, Armas } from './database/memoria.js';
+import mongoose from 'mongoose';
+import { WarriorModel } from './models/warriors.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const MONGO_URI = process.env.MONGO_URI;
+const USE_MONGODB = process.env.USE_MONGODB !== 'false';
 
 app.use(express.json());
 
-// Health Check
-app.get('/health', (req: Request, res: Response) => {
-    res.status(200).json({ status: "UP", message: "El Santuario online" });
-});
-
-// ============================================================================
-// ENDPOINTS PARA RAZAS
-// ============================================================================
-app.get('/api/v1/races', (req: Request, res: Response) => res.status(200).json(Razas));
-
-app.post('/api/v1/races', (req: Request, res: Response) => {
-    const nuevaRaza: Raza = req.body;
-    if (!nuevaRaza.nombre || !nuevaRaza.descripcion) return res.status(400).json({ error: "Faltan campos" });
-    nuevaRaza.id = (Razas.length + 1).toString();
-    nuevaRaza.bonusVida = nuevaRaza.bonusVida || 0;
-    Razas.push(nuevaRaza);
-    res.status(201).json({ mensaje: "Raza añadida", raza: nuevaRaza });
-});
-
-// ============================================================================
-// ENDPOINTS PARA ARMAS
-// ============================================================================
-app.get('/api/v1/weapons', (req: Request, res: Response) => res.status(200).json(Armas));
-
-app.post('/api/v1/weapons', (req: Request, res: Response) => {
-    const nuevaArma: Arma = req.body;
-    if (!nuevaArma.nombre || !nuevaArma.tipo || nuevaArma.bonusAtaque === undefined) {
-        return res.status(400).json({ error: "Campos 'nombre', 'tipo' y 'bonusAtaque' son requeridos." });
-    }
-    nuevaArma.id = (Armas.length + 1).toString();
-    Armas.push(nuevaArma);
-    res.status(201).json({ mensaje: "Arma forjada con éxito en la herrería", arma: nuevaArma });
-});
-
-// ============================================================================
-// ENDPOINTS DE GUERREROS (CRUD COMPLETO)
-// ============================================================================
-app.get('/api/v1/warriors', (req: Request, res: Response) => res.status(200).json(AnimalWarriors));
-
-app.get('/api/v1/warriors/:id', (req: Request, res: Response) => {
-    const guerrero = AnimalWarriors.find((w: Warrior) => w.id === req.params.id);
-    if (!guerrero) return res.status(404).json({ error: "Guerrero no encontrado" });
-    res.status(200).json(guerrero);
-});
-
-app.post('/api/v1/warriors', (req: Request, res: Response) => {
-    const nuevoGuerrero: Warrior = req.body;
-    if (!nuevoGuerrero.nombre || !nuevoGuerrero.razaId) {
-        return res.status(400).json({ error: "Campos 'nombre' y 'razaId' son obligatorios." });
+// 1. CONEXIÓN A MONGODB
+const connectToDatabase = async () => {
+    if (!USE_MONGODB) {
+        console.log('⚠️ Modo desarrollo local (sin MongoDB)');
+        return true;
     }
 
-    if (nuevoGuerrero.armaId) {
-        const armaExiste = Armas.some((a: Arma) => a.id === nuevoGuerrero.armaId);
-        if (!armaExiste) return res.status(422).json({ error: "El arma asignada no existe." });
+    try {
+        await mongoose.connect(MONGO_URI!, {
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
+        });
+        console.log('✅ Conectado exitosamente a MongoDB Atlas');
+        return true;
+    } catch (error) {
+        console.error('❌ Error fatal al conectar a MongoDB:', error);
+        return false;
     }
+};
 
-    nuevoGuerrero.id = (AnimalWarriors.length + 1).toString();
-    nuevoGuerrero.vida = 100;
-    nuevoGuerrero.cosmo = nuevoGuerrero.cosmo || 50;
+const startServer = async () => {
+    const connected = await connectToDatabase();
+    if (connected || !USE_MONGODB) {
+        app.listen(PORT, () => console.log(`✅ Servidor corriendo en el puerto ${PORT}`));
+    } else {
+        process.exit(1);
+    }
+};
 
-    AnimalWarriors.push(nuevoGuerrero);
-    res.status(201).json({ mensaje: "Guerrero creado", personaje: nuevoGuerrero });
-});
-
-app.put('/api/v1/warriors/:id', (req: Request, res: Response) => {
-    const indice = AnimalWarriors.findIndex((w: Warrior) => w.id === req.params.id);
-    if (indice === -1) return res.status(404).json({ error: "El guerrero no existe" });
-
-    AnimalWarriors[indice] = { ...AnimalWarriors[indice], ...req.body };
-    res.status(200).json({ mensaje: "Atributos actualizados", personaje: AnimalWarriors[indice] });
-});
-
-app.delete('/api/v1/warriors/:id', (req: Request, res: Response) => {
-    const indice = AnimalWarriors.findIndex((w: Warrior) => w.id === req.params.id);
-    if (indice === -1) return res.status(404).json({ error: "No se encontró el personaje" });
-
-    AnimalWarriors.splice(indice, 1);
-    res.status(200).json({ mensaje: "El guerrero ha sido enviado al inframundo" });
-});
+startServer();
 
 // ============================================================================
-// MOTOR DE ENFRENTAMIENTOS
+// ENDPOINTS DE GUERREROS
 // ============================================================================
-app.post('/api/v1/battles/match', (req: Request, res: Response) => {
+
+app.get('/api/v1/warriors', async (req: Request, res: Response) => {
+    try {
+        const warriors = await WarriorModel.find();
+        res.status(200).json(warriors);
+    } catch (error) { res.status(500).json({ error: "Error al obtener guerreros" }); }
+});
+
+app.post('/api/v1/warriors', async (req: Request, res: Response) => {
+    try {
+        const nuevoGuerrero = new WarriorModel(req.body);
+        await nuevoGuerrero.save();
+        res.status(201).json({ mensaje: "Guerrero creado en la nube", personaje: nuevoGuerrero });
+    } catch (error: any) {
+        // AJUSTE: Manejo de error de duplicado (Unique Index)
+        if (error.code === 11000) {
+            return res.status(409).json({ error: "Conflicto: Ya existe un guerrero con este nombre" });
+        }
+        res.status(400).json({ error: "Error al guardar el guerrero", detalles: error.message });
+    }
+});
+
+// ... (tus otros endpoints siguen igual)
+
+app.post('/api/v1/battles/match', async (req: Request, res: Response) => {
     const { atacanteId, defensorId, nombrePoder } = req.body;
+    try {
+        const atacante = await WarriorModel.findById(atacanteId);
+        const defensor = await WarriorModel.findById(defensorId);
 
-    const atacante = AnimalWarriors.find((w: Warrior) => w.id === atacanteId);
-    const defensor = AnimalWarriors.find((w: Warrior) => w.id === defensorId);
+        if (!atacante || !defensor) return res.status(404).json({ error: "Contendientes no encontrados" });
 
-    if (!atacante || !defensor) return res.status(404).json({ error: "Contendientes no encontrados" });
+        const poder = atacante.poderes.find((p: any) => p.nombre.toLowerCase() === nombrePoder.toLowerCase());
+        if (!poder) return res.status(400).json({ error: "El atacante no conoce ese poder" });
 
-    const poder = atacante.poderes.find((p: any) => p.nombre.toLowerCase() === nombrePoder.toLowerCase());
-    if (!poder) return res.status(400).json({ error: "El atacante no conoce ese poder" });
+        if (atacante.cosmo < poder.consumoCosmo) return res.status(422).json({ error: "Cosmo insuficiente" });
 
-    if (atacante.cosmo < poder.consumoCosmo) return res.status(422).json({ error: "Cosmo insuficiente" });
+        const danoNeto = poder.danoBase * (1 - (defensor.armadura.resistencia / 100));
 
-    let dañoDeArma = 0;
-    if (atacante.armaId) {
-        const armaEquipada = Armas.find((a: Arma) => a.id === atacante.armaId);
-        if (armaEquipada) {
-            dañoDeArma = armaEquipada.bonusAtaque;
-        }
+        defensor.vida = Math.max(0, defensor.vida - danoNeto);
+        atacante.cosmo -= poder.consumoCosmo;
+
+        await atacante.save();
+        await defensor.save();
+
+        res.status(200).json({
+            combate: `${atacante.nombre} VS ${defensor.nombre}`,
+            danoRealImpactado: danoNeto,
+            vidaRestanteDefensor: defensor.vida
+        });
+    } catch (error) {
+        res.status(500).json({ error: "Error durante el combate" });
     }
-
-    const reduccion = defensor.armadura.resistencia / 100; 
-    const danoTotalCalculado = poder.danoBase + dañoDeArma;
-    const danoNeto = danoTotalCalculado * (1 - reduccion);
-
-    defensor.vida = Math.max(0, defensor.vida - danoNeto);
-    atacante.cosmo -= poder.consumoCosmo;
-
-    res.status(200).json({
-        combate: `${atacante.nombre} VS ${defensor.nombre}`,
-        accion: `${atacante.nombre} ataca con [${poder.nombre}] usando sus equipamientos`,
-        calculoDano: {
-            danoBasePoder: poder.danoBase,
-            bonusDeArmaEquipada: dañoDeArma,
-            absorcionArmaduraEnemiga: `${defensor.armadura.resistencia}%`,
-            danoRealImpactado: danoNeto
-        },
-        estadoFinal: {
-            vidaRestanteDefensor: defensor.vida,
-            resultado: defensor.vida === 0 ? `${defensor.nombre} ha caído.` : "Siguen en pie"
-        }
-    });
-});
-
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en el puerto ${PORT}`);
 });

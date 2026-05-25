@@ -1,7 +1,7 @@
 // Solución al error de CommonJS: Forzar al compilador a reconocer el archivo como módulo
 export {};
 
-import { Warrior, Raza, Arma } from '../models/Warrior';
+import { Warrior, Raza, Arma } from '../models/warriors.js';
 
 // Banco de datos de Razas
 export let Razas: Raza[] = [
