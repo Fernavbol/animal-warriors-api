@@ -1,43 +1,43 @@
-import { Request, Response } from 'express';
-import { WarriorModel } from './models/warriors.js';
+import express from 'express';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import { createWarrior, updateWarrior } from './controllers/warrior.controller.js';
 
-export const createWarrior = async (req: Request, res: Response) => {
-  try {
-    // Es una buena práctica validar que req.body tenga datos
-    if (!req.body || Object.keys(req.body).length === 0) {
-      return res.status(400).json({ mensaje: "El cuerpo de la petición está vacío" });
-    }
+dotenv.config();
 
-    const newWarrior = new WarriorModel(req.body);
-    
-    // Al llamar a save(), Mongoose valida contra tu WarriorSchema automáticamente.
-    await newWarrior.save();
-    
-    return res.status(201).json({ 
-        mensaje: "Guerrero creado exitosamente", 
-        personaje: newWarrior 
-    });
-    
-  } catch (error: any) {
-    // Error 11000: Nombre duplicado (gracias al índice unique: true)
-    if (error.code === 11000) {
-      return res.status(409).json({ 
-          mensaje: "Error: Ya existe un guerrero con este nombre." 
-      });
-    }
-    
-    // Error de validación: Falta algún campo requerido o formato incorrecto
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({ 
-          mensaje: "Error de validación", 
-          detalles: error.message 
-      });
-    }
+const app = express();
+const PORT = process.env.PORT || 3000;
+// Nos aseguramos de leer la variable de entorno
+const MONGO_URI = process.env.MONGO_URI || "";
 
-    // Error inesperado
-    return res.status(500).json({ 
-        mensaje: "Error interno del servidor", 
-        error: error.message 
-    });
-  }
+app.use(express.json());
+
+// --- CONEXIÓN A MONGODB ---
+const connectToDatabase = async () => {
+    try {
+        if (!MONGO_URI) {
+            throw new Error("La variable de entorno MONGO_URI no está definida.");
+        }
+        await mongoose.connect(MONGO_URI);
+        console.log('✅ Conectado exitosamente a MongoDB Atlas');
+    } catch (error) {
+        console.error('❌ Error crítico de conexión a MongoDB:', error);
+        // Quitamos el process.exit(1) para ver el error en los logs de Render
+    }
 };
+
+// --- RUTAS DE LA API ---
+app.post('/api/v1/warriors', createWarrior);
+app.patch('/api/v1/warriors/:id', updateWarrior);
+
+// --- INICIO DEL SERVIDOR ---
+const startServer = async () => {
+    // Primero conectamos a la BD
+    await connectToDatabase();
+    // Luego arrancamos el servidor
+    app.listen(PORT, () => {
+        console.log(`🚀 Servidor en ejecución en el puerto ${PORT}`);
+    });
+};
+
+startServer();
