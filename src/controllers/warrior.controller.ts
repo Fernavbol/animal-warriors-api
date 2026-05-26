@@ -1,10 +1,25 @@
 import { Request, Response } from 'express';
-// Asegúrate de que esta ruta sea correcta y que el modelo esté exportado en warriors.ts
-import { WarriorModel } from '../models/warriors.js'; 
+import { WarriorModel } from '../models/warriors.js';
 
+// Controlador para crear
+export const createWarrior = async (req: Request, res: Response) => {
+    try {
+        if (!req.body || Object.keys(req.body).length === 0) {
+            return res.status(400).json({ mensaje: "El cuerpo de la petición está vacío" });
+        }
+        const newWarrior = new WarriorModel(req.body);
+        await newWarrior.save();
+        return res.status(201).json({ mensaje: "Guerrero creado exitosamente", personaje: newWarrior });
+    } catch (error: any) {
+        if (error.code === 11000) return res.status(409).json({ mensaje: "Error: Ya existe un guerrero con este nombre." });
+        if (error.name === 'ValidationError') return res.status(400).json({ mensaje: "Error de validación", detalles: error.message });
+        return res.status(500).json({ mensaje: "Error interno del servidor", error: error.message });
+    }
+};
+
+// Controlador para actualizar (el que me enviaste)
 export const updateWarrior = async (req: Request, res: Response) => {
     try {
-        // Si VS Code sigue molestando con req.params, puedes forzar el tipo:
         const { id } = req.params as { id: string }; 
         
         const updatedWarrior = await WarriorModel.findByIdAndUpdate(
