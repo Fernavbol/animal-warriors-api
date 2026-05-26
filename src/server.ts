@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 // Importamos getWarriors junto con los otros controladores
 import { createWarrior, updateWarrior, getWarriors } from './controllers/warrior.controller.js';
-
 dotenv.config();
 
 const app = express();
