@@ -1,13 +1,13 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import { createWarrior, updateWarrior } from './controllers/warrior.controller.js';
+// Importamos getWarriors junto con los otros controladores
+import { createWarrior, updateWarrior, getWarriors } from './controllers/warrior.controller.js';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-// Nos aseguramos de leer la variable de entorno
 const MONGO_URI = process.env.MONGO_URI || "";
 
 app.use(express.json());
@@ -22,19 +22,22 @@ const connectToDatabase = async () => {
         console.log('✅ Conectado exitosamente a MongoDB Atlas');
     } catch (error) {
         console.error('❌ Error crítico de conexión a MongoDB:', error);
-        // Quitamos el process.exit(1) para ver el error en los logs de Render
     }
 };
 
 // --- RUTAS DE LA API ---
+// Ruta para listar todos los guerreros (Soluciona el error GET)
+app.get('/api/v1/warriors', getWarriors);
+
+// Ruta para crear
 app.post('/api/v1/warriors', createWarrior);
+
+// Ruta para actualizar
 app.patch('/api/v1/warriors/:id', updateWarrior);
 
 // --- INICIO DEL SERVIDOR ---
 const startServer = async () => {
-    // Primero conectamos a la BD
     await connectToDatabase();
-    // Luego arrancamos el servidor
     app.listen(PORT, () => {
         console.log(`🚀 Servidor en ejecución en el puerto ${PORT}`);
     });
