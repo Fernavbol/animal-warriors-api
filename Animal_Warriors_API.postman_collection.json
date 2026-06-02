@@ -1,0 +1,554 @@
+{
+  "info": {
+    "name": "Animal Warriors API",
+    "description": "API REST para Testing de Animal Warriors Game - 15 Endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "🧬 RAZAS (RACES)",
+      "item": [
+        {
+          "name": "1. Crear Raza - León",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"León\",\n  \"descripcion\": \"Un guerrero felino con gran poder de ataque y resistencia\",\n  \"bonusVida\": 20,\n  \"bonusCosmo\": 15\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/races",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "races"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2. Crear Raza - Tigre",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Tigre\",\n  \"descripcion\": \"Un guerrero ágil y rápido con grandes habilidades de evasión\",\n  \"bonusVida\": 15,\n  \"bonusCosmo\": 20\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/races",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "races"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3. Crear Raza - Águila",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Águila\",\n  \"descripcion\": \"Un guerrero alado con velocidad extrema y visión de lince\",\n  \"bonusVida\": 10,\n  \"bonusCosmo\": 25\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/races",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "races"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "4. Obtener Todas las Razas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/races",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "races"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "5. Obtener Raza por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/races/[ID_RAZA]",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "races", "[ID_RAZA]"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "6. Actualizar Raza",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bonusVida\": 25,\n  \"bonusCosmo\": 18\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/races/[ID_RAZA]",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "races", "[ID_RAZA]"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "7. Eliminar Raza",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/races/[ID_RAZA]",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "races", "[ID_RAZA]"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔫 ARMAS (WEAPONS)",
+      "item": [
+        {
+          "name": "1. Crear Arma - Espada Flamígera",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Espada Flamígera\",\n  \"tipo\": \"Espada\",\n  \"bonusAtaque\": 50,\n  \"descripcion\": \"Una espada envuelta en llamas oscuras que quema el alma del enemigo\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/weapons",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "weapons"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2. Crear Arma - Lanza de Hielo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Lanza de Hielo\",\n  \"tipo\": \"Lanza\",\n  \"bonusAtaque\": 45,\n  \"descripcion\": \"Una lanza que congela todo lo que toca a su paso\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/weapons",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "weapons"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3. Crear Arma - Arco de Fuego",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Arco de Fuego\",\n  \"tipo\": \"Arco\",\n  \"bonusAtaque\": 40,\n  \"descripcion\": \"Un arco mitológico que dispara flechas incendiarias\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/weapons",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "weapons"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "4. Obtener Todas las Armas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/weapons",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "weapons"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "5. Obtener Arma por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/weapons/[ID_WEAPON]",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "weapons", "[ID_WEAPON]"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "6. Actualizar Arma",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bonusAtaque\": 60,\n  \"descripcion\": \"Una espada legendaria con poder mejorado infinitamente\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/weapons/[ID_WEAPON]",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "weapons", "[ID_WEAPON]"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "7. Eliminar Arma",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/weapons/[ID_WEAPON]",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "weapons", "[ID_WEAPON]"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🦁 GUERREROS (WARRIORS)",
+      "item": [
+        {
+          "name": "1. Crear Guerrero Completo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Leon el Valiente\",\n  \"razaId\": \"[ID_RAZA_LEON]\",\n  \"armaId\": \"[ID_WEAPON_ESPADA]\",\n  \"vida\": 120,\n  \"cosmo\": 80,\n  \"armadura\": {\n    \"nombre\": \"Armadura Dorada\",\n    \"resistencia\": 35\n  },\n  \"poderes\": [\n    {\n      \"nombre\": \"Rugido del León\",\n      \"danoBase\": 45,\n      \"consumoCosmo\": 20\n    },\n    {\n      \"nombre\": \"Zarpazo Feroz\",\n      \"danoBase\": 60,\n      \"consumoCosmo\": 30\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/warriors",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "warriors"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2. Crear Guerrero Simple (Mínimo)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Tigre el Rápido\",\n  \"razaId\": \"[ID_RAZA_TIGRE]\",\n  \"armadura\": {\n    \"nombre\": \"Armadura Plateada\",\n    \"resistencia\": 25\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/warriors",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "warriors"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3. Obtener Todos los Guerreros",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/warriors",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "warriors"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "4. Obtener Guerrero por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/warriors/[ID_WARRIOR]",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "warriors", "[ID_WARRIOR]"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "5. Actualizar Guerrero",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vida\": 150,\n  \"cosmo\": 100,\n  \"armadura\": {\n    \"nombre\": \"Armadura Platinada\",\n    \"resistencia\": 50\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/warriors/[ID_WARRIOR]",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "warriors", "[ID_WARRIOR]"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "6. Eliminar Guerrero",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/warriors/[ID_WARRIOR]",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "warriors", "[ID_WARRIOR]"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🧪 TEST CASES - Errores",
+      "item": [
+        {
+          "name": "ERROR: POST sin body (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/races",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "races"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "ERROR: ID inválido (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/races/invalid-id-123",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "races", "invalid-id-123"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "ERROR: ID inexistente (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/v1/races/666a1b2c3d4e5f6g7h8i9j0k",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "races", "666a1b2c3d4e5f6g7h8i9j0k"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "ERROR: Nombre duplicado (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"León\",\n  \"descripcion\": \"Otro León con el mismo nombre\",\n  \"bonusVida\": 10,\n  \"bonusCosmo\": 5\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/races",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "races"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "ERROR: Campo requerido faltante (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Raza sin descripción\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/races",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "races"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "ERROR: Valor negativo (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Raza con bonus negativo\",\n  \"descripcion\": \"Esto debería fallar\",\n  \"bonusVida\": -10,\n  \"bonusCosmo\": 5\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/v1/races",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "v1", "races"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
