@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Animal Warriors Admin</title>
+    <style>
+      :root {
+        --bg: #0f172a;
+        --card: #111827;
+        --card-2: #1f2937;
+        --text: #f9fafb;
+        --muted: #94a3b8;
+        --accent: #38bdf8;
+        --accent-2: #22c55e;
+        --danger: #ef4444;
+        --border: #334155;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Inter, Arial, sans-serif;
+        background: linear-gradient(135deg, #020617, #111827 60%, #0f172a);
+        color: var(--text);
+        min-height: 100vh;
+      }
+
+      .app {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        background: rgba(15, 23, 42, 0.95);
+        border-right: 1px solid var(--border);
+        padding: 24px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .sidebar h1 {
+        font-size: 1.2rem;
+        margin: 0 0 4px;
+      }
+
+      .sidebar p {
+        color: var(--muted);
+        margin: 0 0 16px;
+        font-size: 0.95rem;
+      }
+
+      .nav-btn {
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--text);
+        padding: 12px 14px;
+        border-radius: 12px;
+        cursor: pointer;
+        text-align: left;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+
+      .nav-btn.active {
+        background: linear-gradient(90deg, var(--accent), #2563eb);
+        border-color: transparent;
+      }
+
+      .config-card {
+        background: var(--card-2);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px;
+        margin-top: auto;
+      }
+
+      .config-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .config-row input {
+        flex: 1;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: #0f172a;
+        color: var(--text);
+      }
+
+      .btn {
+        border: none;
+        border-radius: 8px;
+        padding: 10px 12px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: #052e16;
+      }
+
+      .btn-danger {
+        background: var(--danger);
+        color: white;
+      }
+
+      .content {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,0.04);
+        color: var(--muted);
+      }
+
+      .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--danger);
+        box-shadow: 0 0 0 3px rgba(239,68,68,0.2);
+      }
+
+      .status-dot.connected {
+        background: var(--accent-2);
+        box-shadow: 0 0 0 3px rgba(34,197,94,0.2);
+      }
+
+      .panel {
+        background: rgba(17, 24, 39, 0.95);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 18px;
+        box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+      }
+
+      .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .table-wrap {
+        overflow: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th, td {
+        padding: 12px;
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+      }
+
+      th {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: min(480px, 100%);
+        height: 100%;
+        background: rgba(2, 6, 23, 0.95);
+        border-left: 1px solid var(--border);
+        transform: translateX(110%);
+        transition: transform 0.25s ease;
+        z-index: 20;
+        padding: 24px;
+        overflow-y: auto;
+      }
+
+      .drawer.open { transform: translateX(0); }
+
+      .drawer h3 { margin: 0 0 8px; }
+
+      .drawer .close-btn {
+        margin-left: auto;
+        background: transparent;
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+
+      .form-grid {
+        display: grid;
+        gap: 12px;
+      }
+
+      .field-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      label {
+        font-size: 0.92rem;
+        color: var(--muted);
+      }
+
+      input, select, textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: #0f172a;
+        color: var(--text);
+      }
+
+      textarea { min-height: 80px; resize: vertical; }
+
+      .power-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr auto;
+        gap: 8px;
+        align-items: end;
+      }
+
+      .power-row .btn-danger { padding: 10px 12px; }
+
+      .drawer-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .toast-stack {
+        position: fixed;
+        bottom: 18px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 30;
+      }
+
+      .toast {
+        padding: 12px 14px;
+        border-radius: 12px;
+        min-width: 240px;
+        box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+        border: 1px solid var(--border);
+      }
+
+      .toast.success { background: rgba(34,197,94,0.16); color: #bbf7d0; }
+      .toast.error { background: rgba(239,68,68,0.16); color: #fecaca; }
+
+      @media (max-width: 900px) {
+        .app { grid-template-columns: 1fr; }
+        .sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+        .content { padding: 16px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div>
+          <h1>Animal Warriors Admin</h1>
+          <p>Panel para probar y administrar la API REST.</p>
+        </div>
+
+        <button class="nav-btn active" data-testid="tab-warriors" data-tab="warriors">Warriors</button>
+        <button class="nav-btn" data-testid="tab-weapons" data-tab="weapons">Weapons</button>
+        <button class="nav-btn" data-testid="tab-races" data-tab="races">Razas</button>
+
+        <div class="config-card">
+          <label for="baseUrl">API Base URL</label>
+          <div class="config-row">
+            <input id="baseUrl" data-testid="field-base-url" value="https://animal-warriors-api.onrender.com/api/v1" />
+            <button id="applyBaseUrl" class="btn btn-primary" data-testid="btn-apply-base-url">Aplicar</button>
+          </div>
+          <div class="status-pill" style="margin-top: 10px;">
+            <span id="statusDot" class="status-dot"></span>
+            <span id="statusText">Desconectado</span>
+          </div>
+        </div>
+      </aside>
+
+      <main class="content">
+        <div class="topbar">
+          <h2 id="pageTitle">Warriors</h2>
+          <button id="createBtn" class="btn btn-primary" data-testid="btn-create">+ Crear</button>
+        </div>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h3 id="tableTitle">Lista de warriors</h3>
+            <span id="countBadge">0 registros</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead id="tableHead"></thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="drawer" class="drawer" aria-hidden="true">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom: 12px;">
+        <h3 id="drawerTitle">Crear registro</h3>
+        <button id="drawerClose" class="btn close-btn" data-testid="btn-close-drawer">✕</button>
+      </div>
+      <div id="drawerContent"></div>
+    </div>
+
+    <div id="toastStack" class="toast-stack"></div>
+
+    <script>
+      const defaultBaseUrl = 'https://animal-warriors-api.onrender.com/api/v1';
+      const mockData = {
+        warriors: [
+          { _id: 'mock-war-1', nombre: 'Leo', razaId: 'mock-race-1', armaId: 'mock-weapon-1', vida: 120, cosmo: 80, armadura: { nombre: 'Escudo Solar', resistencia: 18 }, poderes: [{ nombre: 'Rayo', danoBase: 24, consumoCosmo: 12 }] },
+          { _id: 'mock-war-2', nombre: 'Nora', razaId: 'mock-race-2', armaId: 'mock-weapon-2', vida: 100, cosmo: 95, armadura: { nombre: 'Malla de Loto', resistencia: 14 }, poderes: [{ nombre: 'Velo', danoBase: 16, consumoCosmo: 10 }] }
+        ],
+        weapons: [
+          { _id: 'mock-weapon-1', nombre: 'Espada Solar', tipo: 'Cuerpo a cuerpo', bonusAtaque: 12, descripcion: 'Arma ofensiva básica' },
+          { _id: 'mock-weapon-2', nombre: 'Bastón Lunar', tipo: 'Magia', bonusAtaque: 10, descripcion: 'Daño mágico' }
+        ],
+        races: [
+          { _id: 'mock-race-1', nombre: 'León', descripcion: 'Raza agresiva', bonusVida: 20, bonusCosmo: 8 },
+          { _id: 'mock-race-2', nombre: 'Tigre', descripcion: 'Raza ágil', bonusVida: 12, bonusCosmo: 14 }
+        ]
+      };
+      const state = {
+        activeTab: 'warriors',
+        warriors: [],
+        weapons: [],
+        races: [],
+        editingId: null,
+        mode: 'create',
+        baseUrl: localStorage.getItem('animalWarriors.baseUrl') || defaultBaseUrl,
+        usingMockData: false
+      };
+
+      const baseUrlInput = document.getElementById('baseUrl');
+      const applyBtn = document.getElementById('applyBaseUrl');
+      const pageTitle = document.getElementById('pageTitle');
+      const tableTitle = document.getElementById('tableTitle');
+      const countBadge = document.getElementById('countBadge');
+      const tableHead = document.getElementById('tableHead');
+      const tableBody = document.getElementById('tableBody');
+      const drawer = document.getElementById('drawer');
+      const drawerTitle = document.getElementById('drawerTitle');
+      const drawerContent = document.getElementById('drawerContent');
+      const statusDot = document.getElementById('statusDot');
+      const statusText = document.getElementById('statusText');
+      const toastStack = document.getElementById('toastStack');
+      const createBtn = document.getElementById('createBtn');
+
+      baseUrlInput.value = state.baseUrl;
+
+      document.querySelectorAll('.nav-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.nav-btn').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          state.activeTab = btn.dataset.tab;
+          renderPage();
+          closeDrawer();
+        });
+      });
+
+      createBtn.addEventListener('click', () => openDrawer('create'));
+      applyBtn.addEventListener('click', applyBaseUrl);
+      baseUrlInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') applyBaseUrl();
+      });
+
+      function applyBaseUrl() {
+        const nextUrl = baseUrlInput.value.trim() || defaultBaseUrl;
+        state.baseUrl = nextUrl.replace(/\/$/, '');
+        localStorage.setItem('animalWarriors.baseUrl', state.baseUrl);
+        loadAll();
+        showToast('URL base aplicada');
+      }
+
+      function setConnectionStatus(connected, message = '') {
+        statusDot.classList.toggle('connected', connected);
+        statusText.textContent = message || (connected ? 'Conectado' : 'Desconectado');
+      }
+
+      function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        toastStack.appendChild(toast);
+        setTimeout(() => toast.remove(), 2800);
+      }
+
+      async function request(path, options = {}) {
+        const response = await fetch(`${state.baseUrl}${path}`, {
+          headers: { 'Content-Type': 'application/json' },
+          ...options
+        });
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(text || `Error ${response.status}`);
+        }
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          return response.json();
+        }
+        return response.text();
+      }
+
+      async function loadAll() {
+        try {
+          const [warriors, weapons, races] = await Promise.all([
+            request('/warriors'),
+            request('/weapons'),
+            request('/races')
+          ]);
+          state.warriors = Array.isArray(warriors) ? warriors : [];
+          state.weapons = Array.isArray(weapons) ? weapons : [];
+          state.races = Array.isArray(races) ? races : [];
+          state.usingMockData = false;
+          setConnectionStatus(true, 'Conectado');
+          renderPage();
+        } catch (error) {
+          console.error(error);
+          state.warriors = mockData.warriors;
+          state.weapons = mockData.weapons;
+          state.races = mockData.races;
+          state.usingMockData = true;
+          setConnectionStatus(false, 'Modo demo');
+          renderPage();
+          if (!document.getElementById('toastStack').dataset.demoShown) {
+            showToast('API no disponible. Usando datos de demo para practicar.', 'error');
+            document.getElementById('toastStack').dataset.demoShown = 'true';
+          }
+        }
+      }
+
+      function renderPage() {
+        pageTitle.textContent = tabLabel(state.activeTab);
+        tableTitle.textContent = `Lista de ${tabLabel(state.activeTab).toLowerCase()}`;
+        renderTable();
+      }
+
+      function tabLabel(tab) {
+        return tab === 'warriors' ? 'Warriors' : tab === 'weapons' ? 'Weapons' : 'Razas';
+      }
+
+      function renderTable() {
+        const rows = state[state.activeTab] || [];
+        countBadge.textContent = `${rows.length} registro${rows.length === 1 ? '' : 's'}`;
+
+        const headers = {
+          warriors: ['Nombre', 'Raza', 'Arma', 'Vida', 'Cosmo', 'Acciones'],
+          weapons: ['Nombre', 'Tipo', 'Bonus Ataque', 'Descripción', 'Acciones'],
+          races: ['Nombre', 'Descripción', 'Bonus Vida', 'Bonus Cosmo', 'Acciones']
+        };
+
+        tableHead.innerHTML = `
+          <tr>
+            ${headers[state.activeTab].map((h) => `<th>${h}</th>`).join('')}
+          </tr>
+        `;
+
+        if (!rows.length) {
+          tableBody.innerHTML = `<tr><td colspan="${headers[state.activeTab].length}" style="text-align:center;color:#94a3b8;">No hay registros</td></tr>`;
+          return;
+        }
+
+        tableBody.innerHTML = rows.map((item) => {
+          if (state.activeTab === 'warriors') {
+            const raza = state.races.find((r) => r._id === item.razaId || r.id === item.razaId) || {};
+            const arma = state.weapons.find((w) => w._id === item.armaId || w.id === item.armaId) || {};
+            return `
+              <tr data-testid="row-warrior-${item._id || item.id}">
+                <td>${item.nombre || '—'}</td>
+                <td>${raza.nombre || item.razaId || '—'}</td>
+                <td>${arma.nombre || item.armaId || '—'}</td>
+                <td>${item.vida ?? '—'}</td>
+                <td>${item.cosmo ?? '—'}</td>
+                <td>
+                  <div class="actions">
+                    <button class="btn btn-primary" data-testid="btn-edit" data-id="${item._id || item.id}" data-tab="warriors">Editar</button>
+                    <button class="btn btn-danger" data-testid="btn-delete" data-id="${item._id || item.id}" data-tab="warriors">Eliminar</button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }
+
+          if (state.activeTab === 'weapons') {
+            return `
+              <tr data-testid="row-weapon-${item._id || item.id}">
+                <td>${item.nombre || '—'}</td>
+                <td>${item.tipo || '—'}</td>
+                <td>${item.bonusAtaque ?? '—'}</td>
+                <td>${item.descripcion || '—'}</td>
+                <td>
+                  <div class="actions">
+                    <button class="btn btn-primary" data-testid="btn-edit" data-id="${item._id || item.id}" data-tab="weapons">Editar</button>
+                    <button class="btn btn-danger" data-testid="btn-delete" data-id="${item._id || item.id}" data-tab="weapons">Eliminar</button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }
+
+          return `
+            <tr data-testid="row-race-${item._id || item.id}">
+              <td>${item.nombre || '—'}</td>
+              <td>${item.descripcion || '—'}</td>
+              <td>${item.bonusVida ?? '—'}</td>
+              <td>${item.bonusCosmo ?? '—'}</td>
+              <td>
+                <div class="actions">
+                  <button class="btn btn-primary" data-testid="btn-edit" data-id="${item._id || item.id}" data-tab="races">Editar</button>
+                  <button class="btn btn-danger" data-testid="btn-delete" data-id="${item._id || item.id}" data-tab="races">Eliminar</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        tableBody.querySelectorAll('[data-testid="btn-edit"]').forEach((button) => {
+          button.addEventListener('click', () => openDrawer('edit', button.dataset.tab, button.dataset.id));
+        });
+
+        tableBody.querySelectorAll('[data-testid="btn-delete"]').forEach((button) => {
+          button.addEventListener('click', () => deleteItem(button.dataset.tab, button.dataset.id));
+        });
+      }
+
+      function openDrawer(mode, tab = state.activeTab, id = null) {
+        state.mode = mode;
+        state.editingId = id;
+        state.activeTab = tab;
+        drawer.classList.add('open');
+        drawer.setAttribute('aria-hidden', 'false');
+        drawerTitle.textContent = mode === 'edit' ? 'Editar registro' : 'Crear registro';
+        renderDrawer();
+      }
+
+      function closeDrawer() {
+        drawer.classList.remove('open');
+        drawer.setAttribute('aria-hidden', 'true');
+      }
+
+      document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+
+      function renderDrawer() {
+        if (state.activeTab === 'warriors') {
+          const item = state.warriors.find((w) => (w._id || w.id) === state.editingId) || {};
+          drawerContent.innerHTML = `
+            <div class="form-grid">
+              <div class="field-group">
+                <label>Nombre</label>
+                <input id="field-nombre" data-testid="field-nombre" value="${escapeHtml(item.nombre || '')}" />
+              </div>
+              <div class="field-group">
+                <label>Raza</label>
+                <select id="field-raza-id" data-testid="field-raza-id">
+                  ${renderOptions(state.races, item.razaId)}
+                </select>
+              </div>
+              <div class="field-group">
+                <label>Arma</label>
+                <select id="field-arma-id" data-testid="field-arma-id">
+                  <option value="">Sin arma</option>
+                  ${renderOptions(state.weapons, item.armaId)}
+                </select>
+              </div>
+              <div class="field-group">
+                <label>Vida</label>
+                <input id="field-vida" data-testid="field-vida" type="number" value="${item.vida ?? 100}" />
+              </div>
+              <div class="field-group">
+                <label>Cosmo</label>
+                <input id="field-cosmo" data-testid="field-cosmo" type="number" value="${item.cosmo ?? 50}" />
+              </div>
+              <div class="field-group">
+                <label>Armadura - Nombre</label>
+                <input id="field-armadura-nombre" data-testid="field-armadura-nombre" value="${escapeHtml(item.armadura?.nombre || '')}" />
+              </div>
+              <div class="field-group">
+                <label>Armadura - Resistencia</label>
+                <input id="field-armadura-resistencia" data-testid="field-armadura-resistencia" type="number" value="${item.armadura?.resistencia ?? 0}" />
+              </div>
+              <div class="field-group">
+                <label>Poderes</label>
+                <div id="powersList"></div>
+                <button type="button" id="addPowerBtn" class="btn btn-primary" data-testid="btn-add-power" style="margin-top:8px;">+ Agregar poder</button>
+              </div>
+              <div class="drawer-footer">
+                <button type="button" id="cancelBtn" class="btn" data-testid="btn-cancel">Cancelar</button>
+                <button type="button" id="submitBtn" class="btn btn-primary" data-testid="btn-submit">Guardar</button>
+              </div>
+            </div>
+          `;
+          const powersList = document.getElementById('powersList');
+          const powers = item.poderes || [];
+          powers.forEach((power, index) => addPowerRow(powersList, power, index));
+          if (!powers.length) addPowerRow(powersList);
+          bindDrawerActions();
+          return;
+        }
+
+        if (state.activeTab === 'weapons') {
+          const item = state.weapons.find((w) => (w._id || w.id) === state.editingId) || {};
+          drawerContent.innerHTML = `
+            <div class="form-grid">
+              <div class="field-group">
+                <label>Nombre</label>
+                <input id="field-nombre" data-testid="field-nombre" value="${escapeHtml(item.nombre || '')}" />
+              </div>
+              <div class="field-group">
+                <label>Tipo</label>
+                <input id="field-tipo" data-testid="field-tipo" value="${escapeHtml(item.tipo || '')}" />
+              </div>
+              <div class="field-group">
+                <label>Bonus Ataque</label>
+                <input id="field-bonus-ataque" data-testid="field-bonus-ataque" type="number" value="${item.bonusAtaque ?? 0}" />
+              </div>
+              <div class="field-group">
+                <label>Descripción</label>
+                <textarea id="field-descripcion" data-testid="field-descripcion">${escapeHtml(item.descripcion || '')}</textarea>
+              </div>
+              <div class="drawer-footer">
+                <button type="button" id="cancelBtn" class="btn" data-testid="btn-cancel">Cancelar</button>
+                <button type="button" id="submitBtn" class="btn btn-primary" data-testid="btn-submit">Guardar</button>
+              </div>
+            </div>
+          `;
+          bindDrawerActions();
+          return;
+        }
+
+        const item = state.races.find((r) => (r._id || r.id) === state.editingId) || {};
+        drawerContent.innerHTML = `
+          <div class="form-grid">
+            <div class="field-group">
+              <label>Nombre</label>
+              <input id="field-nombre" data-testid="field-nombre" value="${escapeHtml(item.nombre || '')}" />
+            </div>
+            <div class="field-group">
+              <label>Descripción</label>
+              <textarea id="field-descripcion" data-testid="field-descripcion">${escapeHtml(item.descripcion || '')}</textarea>
+            </div>
+            <div class="field-group">
+              <label>Bonus Vida</label>
+              <input id="field-bonus-vida" data-testid="field-bonus-vida" type="number" value="${item.bonusVida ?? 0}" />
+            </div>
+            <div class="field-group">
+              <label>Bonus Cosmo</label>
+              <input id="field-bonus-cosmo" data-testid="field-bonus-cosmo" type="number" value="${item.bonusCosmo ?? 0}" />
+            </div>
+            <div class="drawer-footer">
+              <button type="button" id="cancelBtn" class="btn" data-testid="btn-cancel">Cancelar</button>
+              <button type="button" id="submitBtn" class="btn btn-primary" data-testid="btn-submit">Guardar</button>
+            </div>
+          </div>
+        `;
+        bindDrawerActions();
+      }
+
+      function addPowerRow(container, power = {}, index = null) {
+        const row = document.createElement('div');
+        row.className = 'power-row';
+        row.innerHTML = `
+          <div class="field-group">
+            <label>Nombre</label>
+            <input class="power-name" data-testid="field-poder-nombre" value="${escapeHtml(power.nombre || '')}" />
+          </div>
+          <div class="field-group">
+            <label>Daño</label>
+            <input class="power-dano" data-testid="field-poder-dano" type="number" value="${power.danoBase ?? 0}" />
+          </div>
+          <div class="field-group">
+            <label>Cosmo</label>
+            <input class="power-cosmo" data-testid="field-poder-consumo" type="number" value="${power.consumoCosmo ?? 0}" />
+          </div>
+          <button type="button" class="btn btn-danger" data-testid="btn-remove-power" data-index="${index ?? container.children.length}">✕</button>
+        `;
+        container.appendChild(row);
+      }
+
+      function bindDrawerActions() {
+        document.getElementById('cancelBtn')?.addEventListener('click', closeDrawer);
+        document.getElementById('submitBtn')?.addEventListener('click', submitForm);
+        document.getElementById('addPowerBtn')?.addEventListener('click', () => {
+          const powersList = document.getElementById('powersList');
+          addPowerRow(powersList);
+        });
+        document.querySelectorAll('[data-testid="btn-remove-power"]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const powersList = document.getElementById('powersList');
+            const rows = powersList.querySelectorAll('.power-row');
+            if (rows.length > 1) {
+              rows[Number(btn.dataset.index)].remove();
+            }
+          });
+        });
+      }
+
+      function renderOptions(list, selectedValue) {
+        return list.map((item) => {
+          const id = item._id || item.id;
+          const label = item.nombre || item.tipo || item.descripcion || id;
+          const isSelected = String(selectedValue) === String(id);
+          return `<option value="${id}" ${isSelected ? 'selected' : ''}>${label}</option>`;
+        }).join('');
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/\"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function saveMockRecord(payload) {
+        const id = `mock-${Date.now()}`;
+        if (state.activeTab === 'warriors') {
+          state.warriors.push({ ...payload, _id: id });
+        } else if (state.activeTab === 'weapons') {
+          state.weapons.push({ ...payload, _id: id });
+        } else {
+          state.races.push({ ...payload, _id: id });
+        }
+      }
+
+      function updateMockRecord(payload) {
+        const targetList = state.activeTab === 'warriors' ? state.warriors : state.activeTab === 'weapons' ? state.weapons : state.races;
+        const index = targetList.findIndex((item) => (item._id || item.id) === state.editingId);
+        if (index >= 0) {
+          targetList[index] = { ...targetList[index], ...payload, _id: state.editingId };
+        }
+      }
+
+      async function submitForm() {
+        try {
+          const payload = state.activeTab === 'warriors'
+            ? buildWarriorPayload()
+            : state.activeTab === 'weapons'
+              ? buildWeaponPayload()
+              : buildRacePayload();
+
+          if (state.mode === 'edit') {
+            await request(`/${state.activeTab}/${state.editingId}`, {
+              method: 'PATCH',
+              body: JSON.stringify(payload)
+            });
+            showToast('Registro actualizado');
+          } else {
+            await request(`/${state.activeTab}`, {
+              method: 'POST',
+              body: JSON.stringify(payload)
+            });
+            showToast('Registro creado');
+          }
+
+          closeDrawer();
+          await loadAll();
+        } catch (error) {
+          if (state.usingMockData || error.message.includes('Failed to fetch')) {
+            if (state.mode === 'edit') {
+              updateMockRecord(buildWarriorPayload());
+            } else {
+              saveMockRecord(state.activeTab === 'warriors' ? buildWarriorPayload() : state.activeTab === 'weapons' ? buildWeaponPayload() : buildRacePayload());
+            }
+            closeDrawer();
+            renderPage();
+            showToast('Registro creado', 'success');
+          } else {
+            showToast(error.message || 'No se pudo guardar', 'error');
+          }
+        }
+      }
+
+      function buildWarriorPayload() {
+        const nombre = document.getElementById('field-nombre').value.trim();
+        const razaId = document.getElementById('field-raza-id').value;
+        const armaId = document.getElementById('field-arma-id').value;
+        const vida = Number(document.getElementById('field-vida').value || 100);
+        const cosmo = Number(document.getElementById('field-cosmo').value || 50);
+        const armaduraNombre = document.getElementById('field-armadura-nombre').value.trim();
+        const armaduraResistencia = Number(document.getElementById('field-armadura-resistencia').value || 0);
+        const powers = Array.from(document.querySelectorAll('.power-row')).map((row) => ({
+          nombre: row.querySelector('.power-name').value.trim(),
+          danoBase: Number(row.querySelector('.power-dano').value || 0),
+          consumoCosmo: Number(row.querySelector('.power-cosmo').value || 0)
+        })).filter((power) => power.nombre);
+
+        const payload = {
+          nombre,
+          razaId,
+          vida,
+          cosmo,
+          armadura: {
+            nombre: armaduraNombre,
+            resistencia: armaduraResistencia
+          },
+          poderes: powers
+        };
+        if (armaId) payload.armaId = armaId;
+        return payload;
+      }
+
+      function buildWeaponPayload() {
+        return {
+          nombre: document.getElementById('field-nombre').value.trim(),
+          tipo: document.getElementById('field-tipo').value.trim(),
+          bonusAtaque: Number(document.getElementById('field-bonus-ataque').value || 0),
+          descripcion: document.getElementById('field-descripcion').value.trim()
+        };
+      }
+
+      function buildRacePayload() {
+        return {
+          nombre: document.getElementById('field-nombre').value.trim(),
+          descripcion: document.getElementById('field-descripcion').value.trim(),
+          bonusVida: Number(document.getElementById('field-bonus-vida').value || 0),
+          bonusCosmo: Number(document.getElementById('field-bonus-cosmo').value || 0)
+        };
+      }
+
+      async function deleteItem(tab, id) {
+        if (!window.confirm('¿Deseas eliminar este registro?')) return;
+        try {
+          await request(`/${tab}/${id}`, { method: 'DELETE' });
+          showToast('Registro eliminado');
+          await loadAll();
+        } catch (error) {
+          if (state.usingMockData || error.message.includes('Failed to fetch')) {
+            const targetList = tab === 'warriors' ? state.warriors : tab === 'weapons' ? state.weapons : state.races;
+            const filtered = targetList.filter((item) => (item._id || item.id) !== id);
+            if (tab === 'warriors') {
+              state.warriors = filtered;
+            } else if (tab === 'weapons') {
+              state.weapons = filtered;
+            } else {
+              state.races = filtered;
+            }
+            renderPage();
+            showToast('Registro eliminado en modo demo', 'success');
+          } else {
+            showToast(error.message || 'No se pudo eliminar', 'error');
+          }
+        }
+      }
+
+      loadAll();
+    </script>
+  </body>
+</html>
