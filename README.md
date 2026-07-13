@@ -6,7 +6,7 @@
 [![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green)](https://www.mongodb.com/cloud/atlas)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
-Una **API REST profesional y escalable** para gestionar el universo de **Animal Warriors**. Construida con las mejores prácticas de desarrollo backend moderno.
+Una **API REST profesional y escalable** para gestionar el universo de **Animal Warriors**. Construida con las mejores prácticas de desarrollo backend moderno y acompañada de una SPA sencilla para probar los endpoints desde el navegador y automatizar flujos con Playwright.
 
 ## 📋 Descripción del Proyecto
 
@@ -22,6 +22,8 @@ La API implementa validaciones robustas, manejo completo de errores, y está lis
 
 - ✅ **15 Endpoints REST** funcionales y validados
 - ✅ **API REST completa** con operaciones CRUD (Create, Read, Update, Delete)
+- ✅ **Rutas en español** para caballeros, armas y razas
+- ✅ **SPA web** para probar la API visualmente y con automatización
 - ✅ **Base de datos MongoDB Atlas** - Almacenamiento escalable en la nube
 - ✅ **Validaciones robustas** - Índices únicos, campos requeridos, rangos de datos
 - ✅ **TypeScript** - Tipado estático para mayor seguridad y mejor experience de desarrollo
@@ -158,31 +160,27 @@ animal-warriors-api/
 │
 ├── src/                              # Código fuente
 │   ├── server.ts                     # 🔴 Punto de entrada principal
-│   │
 │   ├── controllers/                  # 🎮 Lógica de negocio
-│   │   ├── warrior.controller.ts     # Controlador de Guerreros (5 métodos)
-│   │   ├── weapons.controller.ts     # Controlador de Armas (5 métodos)
-│   │   └── races.controller.ts       # Controlador de Razas (5 métodos)
-│   │
+│   │   ├── warrior.controller.ts     # Controlador de caballeros
+│   │   ├── weapons.controller.ts     # Controlador de armas
+│   │   └── races.controller.ts       # Controlador de razas
 │   ├── models/                       # 📊 Esquemas y tipos
-│   │   ├── warriors.ts               # Modelo, interfaz e índices de Guerreros
-│   │   ├── weapons.ts                # Modelo, interfaz e índices de Armas
-│   │   └── races.ts                  # Modelo, interfaz e índices de Razas
-│   │
+│   │   ├── warriors.ts               # Modelo de caballeros
+│   │   ├── weapons.ts                # Modelo de armas
+│   │   └── races.ts                  # Modelo de razas
 │   └── database/                     # 🗄️ Configuración DB
 │       ├── db.ts                     # Conexión a MongoDB
-│       └── seed.ts                   # Datos iniciales (opcional)
+│       └── seed.ts                   # Datos iniciales
 │
+├── index.html                        # 🌐 SPA para probar la API
+├── playwright-example.spec.js        # 🧪 Ejemplo de prueba con Playwright
 ├── dist/                             # 📦 Código compilado (generado)
-│
-├── node_modules/                     # 📚 Dependencias (auto-generado)
-│
 ├── .env                              # 🔐 Variables de entorno (NO subir a git)
-├── .gitignore                        # 📝 Archivos ignorados por git
 ├── package.json                      # 📋 Dependencias y scripts
 ├── tsconfig.json                     # ⚙️ Configuración de TypeScript
 │
 ├── README.md                         # 📖 Este archivo
+├── DOCUMENTACION_ES.md               # 📘 Documentación en español
 ├── POSTMAN_TESTING.md                # 🧪 Guía de testing con Postman
 ├── VALIDATION_REPORT.md              # ✅ Reporte de validación
 └── Animal_Warriors_API.postman_collection.json  # 📤 Colección Postman
@@ -190,42 +188,50 @@ animal-warriors-api/
 
 ## 🔌 API Endpoints (15 Endpoints)
 
+> La API usa rutas en español para los recursos. También se mantienen las rutas antiguas en inglés para compatibilidad.
+
 ### 🧬 RAZAS (RACES) - 5 Endpoints
 
 | Método | Endpoint | Descripción | Status |
 |--------|----------|-------------|--------|
-| **GET** | `/api/v1/races` | Obtener todas las razas | 200 |
-| **GET** | `/api/v1/races/:id` | Obtener raza por ID | 200 / 404 |
-| **POST** | `/api/v1/races` | Crear nueva raza | 201 |
-| **PATCH** | `/api/v1/races/:id` | Actualizar raza | 200 / 404 |
-| **DELETE** | `/api/v1/races/:id` | Eliminar raza | 200 / 404 |
+| **GET** | `/api/v1/razas` | Obtener todas las razas | 200 |
+| **GET** | `/api/v1/razas/:id` | Obtener raza por ID | 200 / 404 |
+| **POST** | `/api/v1/razas` | Crear nueva raza | 201 |
+| **PATCH** | `/api/v1/razas/:id` | Actualizar raza | 200 / 404 |
+| **DELETE** | `/api/v1/razas/:id` | Eliminar raza | 200 / 404 |
+
+Rutas antiguas compatibles: `/api/v1/races`, `/api/v1/races/:id`
 
 ### 🔫 ARMAS (WEAPONS) - 5 Endpoints
 
 | Método | Endpoint | Descripción | Status |
 |--------|----------|-------------|--------|
-| **GET** | `/api/v1/weapons` | Obtener todas las armas | 200 |
-| **GET** | `/api/v1/weapons/:id` | Obtener arma por ID | 200 / 404 |
-| **POST** | `/api/v1/weapons` | Crear nueva arma | 201 |
-| **PATCH** | `/api/v1/weapons/:id` | Actualizar arma | 200 / 404 |
-| **DELETE** | `/api/v1/weapons/:id` | Eliminar arma | 200 / 404 |
+| **GET** | `/api/v1/armas` | Obtener todas las armas | 200 |
+| **GET** | `/api/v1/armas/:id` | Obtener arma por ID | 200 / 404 |
+| **POST** | `/api/v1/armas` | Crear nueva arma | 201 |
+| **PATCH** | `/api/v1/armas/:id` | Actualizar arma | 200 / 404 |
+| **DELETE** | `/api/v1/armas/:id` | Eliminar arma | 200 / 404 |
+
+Rutas antiguas compatibles: `/api/v1/weapons`, `/api/v1/weapons/:id`
 
 ### 🦁 GUERREROS (WARRIORS) - 5 Endpoints
 
 | Método | Endpoint | Descripción | Status |
 |--------|----------|-------------|--------|
-| **GET** | `/api/v1/warriors` | Obtener todos los guerreros | 200 |
-| **GET** | `/api/v1/warriors/:id` | Obtener guerrero por ID | 200 / 404 |
-| **POST** | `/api/v1/warriors` | Crear nuevo guerrero | 201 |
-| **PATCH** | `/api/v1/warriors/:id` | Actualizar guerrero | 200 / 404 |
-| **DELETE** | `/api/v1/warriors/:id` | Eliminar guerrero | 200 / 404 |
+| **GET** | `/api/v1/caballeros` | Obtener todos los caballeros | 200 |
+| **GET** | `/api/v1/caballeros/:id` | Obtener caballero por ID | 200 / 404 |
+| **POST** | `/api/v1/caballeros` | Crear nuevo caballero | 201 |
+| **PATCH** | `/api/v1/caballeros/:id` | Actualizar caballero | 200 / 404 |
+| **DELETE** | `/api/v1/caballeros/:id` | Eliminar caballero | 200 / 404 |
+
+Rutas antiguas compatibles: `/api/v1/warriors`, `/api/v1/warriors/:id`
 
 ## 📚 Ejemplos de Uso
 
 ### Crear una Raza (POST)
 
 ```bash
-curl -X POST http://localhost:3000/api/v1/races \
+curl -X POST http://localhost:3000/api/v1/razas \
   -H "Content-Type: application/json" \
   -d '{
     "nombre": "León",
@@ -251,16 +257,16 @@ curl -X POST http://localhost:3000/api/v1/races \
 }
 ```
 
-### Obtener Todos los Guerreros (GET)
+### Obtener Todos los Caballeros (GET)
 
 ```bash
-curl http://localhost:3000/api/v1/warriors
+curl http://localhost:3000/api/v1/caballeros
 ```
 
 ### Actualizar una Arma (PATCH)
 
 ```bash
-curl -X PATCH http://localhost:3000/api/v1/weapons/666a1b2c3d4e5f6g7h8i9j0k \
+curl -X PATCH http://localhost:3000/api/v1/armas/666a1b2c3d4e5f6g7h8i9j0k \
   -H "Content-Type: application/json" \
   -d '{
     "bonusAtaque": 60
@@ -270,7 +276,7 @@ curl -X PATCH http://localhost:3000/api/v1/weapons/666a1b2c3d4e5f6g7h8i9j0k \
 ### Eliminar un Guerrero (DELETE)
 
 ```bash
-curl -X DELETE http://localhost:3000/api/v1/warriors/666a1b2c3d4e5f6g7h8i9j0k
+curl -X DELETE http://localhost:3000/api/v1/caballeros/666a1b2c3d4e5f6g7h8i9j0k
 ```
 
 ## 🧪 Testing con Postman
@@ -472,6 +478,7 @@ kill -9 <PID>
 ## 📖 Documentación Adicional
 
 - 📚 [POSTMAN_TESTING.md](POSTMAN_TESTING.md) - Guía completa de testing
+- 📘 [DOCUMENTACION_ES.md](DOCUMENTACION_ES.md) - Documentación en español de la API y la SPA
 - ✅ [VALIDATION_REPORT.md](VALIDATION_REPORT.md) - Reporte de validación
 - 📤 [Animal_Warriors_API.postman_collection.json](Animal_Warriors_API.postman_collection.json) - Colección Postman lista para importar
 
@@ -486,7 +493,7 @@ kill -9 <PID>
 ## 📝 Convenciones del Proyecto
 
 - **Versionado API:** `/api/v1/` - Facilita futuras versiones
-- **Nombres de rutas:** Plural en minúscula (`/races`, `/warriors`, `/weapons`)
+- **Nombres de rutas:** En español (`/caballeros`, `/armas`, `/razas`)
 - **Métodos HTTP:** Siguen estándar REST (GET, POST, PATCH, DELETE)
 - **Respuestas:** Siempre JSON con estructura consistente
 - **IDs:** ObjectId de MongoDB (24 caracteres hexadecimales)

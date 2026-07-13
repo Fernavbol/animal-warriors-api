@@ -42,51 +42,44 @@ export const createApp = () => {
     // --- RUTAS DE LA API ---
 
     // ===== GUERREROS (WARRIORS) =====
-    // Ruta para listar todos los guerreros
+    // Rutas en español
+    app.get('/api/v1/caballeros', getWarriors);
+    app.get('/api/v1/caballeros/:id', getWarriorById);
+    app.post('/api/v1/caballeros', createWarrior);
+    app.patch('/api/v1/caballeros/:id', updateWarrior);
+    app.delete('/api/v1/caballeros/:id', deleteWarrior);
+
+    // Rutas legacy para compatibilidad
     app.get('/api/v1/warriors', getWarriors);
-
-    // Ruta para obtener un guerrero por ID
     app.get('/api/v1/warriors/:id', getWarriorById);
-
-    // Ruta para crear un guerrero
     app.post('/api/v1/warriors', createWarrior);
-
-    // Ruta para actualizar un guerrero
     app.patch('/api/v1/warriors/:id', updateWarrior);
-
-    // Ruta para eliminar un guerrero
     app.delete('/api/v1/warriors/:id', deleteWarrior);
 
     // ===== ARMAS (WEAPONS) =====
-    // Ruta para listar todas las armas
+    app.get('/api/v1/armas', getWeapons);
+    app.get('/api/v1/armas/:id', getWeaponById);
+    app.post('/api/v1/armas', createWeapon);
+    app.patch('/api/v1/armas/:id', updateWeapon);
+    app.delete('/api/v1/armas/:id', deleteWeapon);
+
     app.get('/api/v1/weapons', getWeapons);
-
-    // Ruta para obtener un arma por ID
     app.get('/api/v1/weapons/:id', getWeaponById);
-
-    // Ruta para crear un arma
     app.post('/api/v1/weapons', createWeapon);
-
-    // Ruta para actualizar un arma
     app.patch('/api/v1/weapons/:id', updateWeapon);
-
-    // Ruta para eliminar un arma
     app.delete('/api/v1/weapons/:id', deleteWeapon);
 
     // ===== RAZAS (RACES) =====
-    // Ruta para listar todas las razas
+    app.get('/api/v1/razas', getRaces);
+    app.get('/api/v1/razas/:id', getRaceById);
+    app.post('/api/v1/razas', createRace);
+    app.patch('/api/v1/razas/:id', updateRace);
+    app.delete('/api/v1/razas/:id', deleteRace);
+
     app.get('/api/v1/races', getRaces);
-
-    // Ruta para obtener una raza por ID
     app.get('/api/v1/races/:id', getRaceById);
-
-    // Ruta para crear una raza
     app.post('/api/v1/races', createRace);
-
-    // Ruta para actualizar una raza
     app.patch('/api/v1/races/:id', updateRace);
-
-    // Ruta para eliminar una raza
     app.delete('/api/v1/races/:id', deleteRace);
 
     return app;

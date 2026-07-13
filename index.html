@@ -290,16 +290,16 @@
     <div class="app">
       <aside class="sidebar">
         <div>
-          <h1>Animal Warriors Admin</h1>
+          <h1>Administración Animal Warriors</h1>
           <p>Panel para probar y administrar la API REST.</p>
         </div>
 
-        <button class="nav-btn active" data-testid="tab-warriors" data-tab="warriors">Warriors</button>
-        <button class="nav-btn" data-testid="tab-weapons" data-tab="weapons">Weapons</button>
+        <button class="nav-btn active" data-testid="tab-warriors" data-tab="warriors">Caballeros</button>
+        <button class="nav-btn" data-testid="tab-weapons" data-tab="weapons">Armas</button>
         <button class="nav-btn" data-testid="tab-races" data-tab="races">Razas</button>
 
         <div class="config-card">
-          <label for="baseUrl">API Base URL</label>
+          <label for="baseUrl">URL base de la API</label>
           <div class="config-row">
             <input id="baseUrl" data-testid="field-base-url" value="https://animal-warriors-api.onrender.com/api/v1" />
             <button id="applyBaseUrl" class="btn btn-primary" data-testid="btn-apply-base-url">Aplicar</button>
@@ -313,13 +313,13 @@
 
       <main class="content">
         <div class="topbar">
-          <h2 id="pageTitle">Warriors</h2>
+          <h2 id="pageTitle">Caballeros</h2>
           <button id="createBtn" class="btn btn-primary" data-testid="btn-create">+ Crear</button>
         </div>
 
         <section class="panel">
           <div class="panel-header">
-            <h3 id="tableTitle">Lista de warriors</h3>
+            <h3 id="tableTitle">Lista de caballeros</h3>
             <span id="countBadge">0 registros</span>
           </div>
           <div class="table-wrap">
@@ -439,12 +439,19 @@
         return response.text();
       }
 
+      function getApiPath(tab) {
+        if (tab === 'warriors') return '/caballeros';
+        if (tab === 'weapons') return '/armas';
+        if (tab === 'races') return '/razas';
+        return '/';
+      }
+
       async function loadAll() {
         try {
           const [warriors, weapons, races] = await Promise.all([
-            request('/warriors'),
-            request('/weapons'),
-            request('/races')
+            request(getApiPath('warriors')),
+            request(getApiPath('weapons')),
+            request(getApiPath('races'))
           ]);
           state.warriors = Array.isArray(warriors) ? warriors : [];
           state.weapons = Array.isArray(weapons) ? weapons : [];
@@ -474,7 +481,7 @@
       }
 
       function tabLabel(tab) {
-        return tab === 'warriors' ? 'Warriors' : tab === 'weapons' ? 'Weapons' : 'Razas';
+        return tab === 'warriors' ? 'Caballeros' : tab === 'weapons' ? 'Armas' : 'Razas';
       }
 
       function renderTable() {
@@ -483,8 +490,8 @@
 
         const headers = {
           warriors: ['Nombre', 'Raza', 'Arma', 'Vida', 'Cosmo', 'Acciones'],
-          weapons: ['Nombre', 'Tipo', 'Bonus Ataque', 'Descripción', 'Acciones'],
-          races: ['Nombre', 'Descripción', 'Bonus Vida', 'Bonus Cosmo', 'Acciones']
+          weapons: ['Nombre', 'Tipo', 'Bonus de ataque', 'Descripción', 'Acciones'],
+          races: ['Nombre', 'Descripción', 'Bonus de vida', 'Bonus de cosmo', 'Acciones']
         };
 
         tableHead.innerHTML = `
@@ -777,14 +784,16 @@
               ? buildWeaponPayload()
               : buildRacePayload();
 
+          const endpoint = getApiPath(state.activeTab);
+
           if (state.mode === 'edit') {
-            await request(`/${state.activeTab}/${state.editingId}`, {
+            await request(`${endpoint}/${state.editingId}`, {
               method: 'PATCH',
               body: JSON.stringify(payload)
             });
             showToast('Registro actualizado');
           } else {
-            await request(`/${state.activeTab}`, {
+            await request(endpoint, {
               method: 'POST',
               body: JSON.stringify(payload)
             });
@@ -859,7 +868,7 @@
       async function deleteItem(tab, id) {
         if (!window.confirm('¿Deseas eliminar este registro?')) return;
         try {
-          await request(`/${tab}/${id}`, { method: 'DELETE' });
+          await request(`${getApiPath(tab)}/${id}`, { method: 'DELETE' });
           showToast('Registro eliminado');
           await loadAll();
         } catch (error) {
