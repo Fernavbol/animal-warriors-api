@@ -23,6 +23,8 @@ PORT=3000
 MONGO_URI=mongodb+srv://usuario:contraseña@cluster.mongodb.net/animal-warriors?retryWrites=true&w=majority
 ```
 
+> Si no quieres usar MongoDB, puedes omitir el archivo `.env` y la aplicación arrancará en modo demo utilizando datos en memoria.
+
 ## Ejecutar la API
 
 ### Desarrollo
@@ -30,6 +32,8 @@ MONGO_URI=mongodb+srv://usuario:contraseña@cluster.mongodb.net/animal-warriors?
 ```bash
 npm run dev
 ```
+
+> Si no existe `MONGO_URI`, el servidor se ejecutará en modo demo con datos de ejemplo en memoria.
 
 ### Producción
 
@@ -40,9 +44,31 @@ npm start
 
 ## Ejecutar la app web
 
-La interfaz web está en el archivo index.html. Puedes abrirlo directamente en el navegador o servir la carpeta con un servidor estático.
+La interfaz web está en el archivo `index.html` y ahora también se sirve desde el backend cuando ejecutas el servidor.
 
-Ejemplo simple:
+Si ejecutas la API localmente con `npm run dev` o `npm start`, abre:
+
+```text
+http://localhost:3000/
+```
+
+o
+
+```text
+http://localhost:3000/api/v1
+```
+
+La app web usa la URL base de la API para cargar y guardar registros. Por defecto en el código local se configura a:
+
+```text
+http://localhost:3000/api/v1
+```
+
+Si prefieres usar un despliegue remoto, cambia manualmente la URL base en la interfaz.
+
+Si prefieres servir la aplicación estática de forma separada, también puedes usar un servidor estático simple.
+
+Ejemplo:
 
 ```bash
 python -m http.server 8000
@@ -53,8 +79,6 @@ Luego abre:
 ```text
 http://localhost:8000/
 ```
-
-La app web usa la URL base de la API para cargar y guardar registros. Por defecto apunta al despliegue de Render, pero puedes cambiarla a `http://localhost:3000/api/v1` para trabajar localmente.
 
 ## Endpoints de la API
 

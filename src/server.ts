@@ -1,7 +1,8 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import { pathToFileURL } from 'node:url';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 // Importamos los controladores de Guerreros
 import { createWarrior, updateWarrior, getWarriors, getWarriorById, deleteWarrior } from './controllers/warrior.controller.js';
 // Importamos los controladores de Armas
@@ -9,6 +10,7 @@ import { createWeapon, updateWeapon, getWeapons, getWeaponById, deleteWeapon } f
 // Importamos los controladores de Razas
 import { createRace, updateRace, getRaces, getRaceById, deleteRace } from './controllers/races.controller.js';
 import { seedDatabase } from './database/seed.js';
+import { setUseInMemoryStore } from './database/inMemoryStore.js';
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
@@ -17,8 +19,30 @@ const ALLOWED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000', 'http
 
 export const createApp = () => {
     const app = express();
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const publicDir = path.join(__dirname, '..');
+
+    if (!MONGO_URI) {
+        console.warn('⚠️ La variable de entorno MONGO_URI no está definida. La aplicación se ejecutará en modo demo con datos en memoria.');
+        setUseInMemoryStore(true);
+    } else {
+        setUseInMemoryStore(false);
+    }
 
     app.use(express.json());
+    app.use(express.static(publicDir));
+
+    app.get('/api/v1', (req, res) => {
+        if (req.accepts('html')) {
+            return res.sendFile(path.join(publicDir, 'index.html'));
+        }
+
+        return res.json({
+            name: 'animal-warriors-api',
+            message: 'Use /api/v1/warriors, /api/v1/races, or /api/v1/weapons',
+        });
+    });
 
     app.use((req, res, next) => {
         const origin = req.headers.origin;
@@ -86,23 +110,32 @@ export const createApp = () => {
 };
 
 // --- CONEXIÓN A MONGODB ---
-const connectToDatabase = async () => {
+const connectToDatabase = async (): Promise<boolean> => {
     try {
         if (!MONGO_URI) {
-            throw new Error("La variable de entorno MONGO_URI no está definida.");
+            console.warn('⚠️ La variable de entorno MONGO_URI no está definida. El servidor iniciará en modo demo con datos en memoria.');
+            setUseInMemoryStore(true);
+            return false;
         }
         await mongoose.connect(MONGO_URI);
         console.log('✅ Conectado exitosamente a MongoDB Atlas');
+        return true;
     } catch (error) {
         console.error('❌ Error crítico de conexión a MongoDB:', error);
+        setUseInMemoryStore(true);
+        return false;
     }
 };
 
 // --- INICIO DEL SERVIDOR ---
 export const startServer = async () => {
     const app = createApp();
-    await connectToDatabase();
-    await seedDatabase();
+    const dbConnected = await connectToDatabase();
+    if (dbConnected) {
+        await seedDatabase();
+    } else {
+        console.warn('⚠️ La base de datos no está disponible. Se omitirá la carga de datos iniciales.');
+    }
     return app.listen(PORT, () => {
         console.log(`🚀 Servidor en ejecución en el puerto ${PORT}`);
     });

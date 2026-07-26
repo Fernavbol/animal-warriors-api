@@ -133,11 +133,21 @@ npm run dev
 - ✅ Logs en la consola
 - ✅ Mejor para debugging
 
+**La aplicación web de prueba se sirve desde el mismo backend:**
+- `http://localhost:3000/`
+- `http://localhost:3000/api/v1`
+
 **Salida esperada:**
 ```
 🚀 Servidor en ejecución en el puerto 3000
+```
+
+Si `MONGO_URI` está definido, verás también:
+```
 ✅ Conectado exitosamente a MongoDB Atlas
 ```
+
+Si no hay `MONGO_URI`, el servidor iniciará en modo demo con datos en memoria.
 
 ### Modo Producción
 
@@ -150,6 +160,12 @@ npm run build
 ```bash
 npm start
 ```
+
+**La interfaz de pruebas también estará disponible en:**
+- `http://localhost:3000/`
+- `http://localhost:3000/api/v1`
+
+Si usas la interfaz de prueba directamente en el navegador, asegúrate de cambiar la URL base a `http://localhost:3000/api/v1`.
 
 El código compilado se genera en la carpeta `dist/`.
 

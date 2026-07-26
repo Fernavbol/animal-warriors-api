@@ -1,11 +1,16 @@
 import { Request, Response } from 'express';
 import { RaceModel } from '../models/races.js';
+import { isUsingInMemoryStore, races as memoryRaces, createRace as createMemoryRace, getRaceById as getMemoryRaceById, updateRaceById, deleteRaceById } from '../database/inMemoryStore.js';
 
 // 1. Crear Raza
 export const createRace = async (req: Request, res: Response) => {
     try {
         if (!req.body || Object.keys(req.body).length === 0) {
             return res.status(400).json({ mensaje: "El cuerpo de la petición está vacío" });
+        }
+        if (isUsingInMemoryStore()) {
+            const newRace = createMemoryRace(req.body);
+            return res.status(201).json({ mensaje: "Raza creada exitosamente", raza: newRace });
         }
         const newRace = new RaceModel(req.body);
         await newRace.save();
@@ -20,6 +25,9 @@ export const createRace = async (req: Request, res: Response) => {
 // 2. Obtener todas las razas
 export const getRaces = async (req: Request, res: Response) => {
     try {
+        if (isUsingInMemoryStore()) {
+            return res.status(200).json(memoryRaces);
+        }
         const races = await RaceModel.find();
         return res.status(200).json(races);
     } catch (error: any) {
@@ -34,6 +42,14 @@ export const getRaceById = async (req: Request, res: Response) => {
         
         if (!id.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({ mensaje: "ID inválido" });
+        }
+
+        if (isUsingInMemoryStore()) {
+            const race = getMemoryRaceById(id);
+            if (!race) {
+                return res.status(404).json({ mensaje: "Raza no encontrada" });
+            }
+            return res.status(200).json(race);
         }
 
         const race = await RaceModel.findById(id);
@@ -55,6 +71,17 @@ export const updateRace = async (req: Request, res: Response) => {
         
         if (!id.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({ mensaje: "ID inválido" });
+        }
+
+        if (isUsingInMemoryStore()) {
+            const updatedRace = updateRaceById(id, req.body);
+            if (!updatedRace) {
+                return res.status(404).json({ mensaje: "Raza no encontrada" });
+            }
+            return res.status(200).json({
+                mensaje: "Raza actualizada exitosamente",
+                raza: updatedRace
+            });
         }
 
         const updatedRace = await RaceModel.findByIdAndUpdate(
@@ -84,6 +111,17 @@ export const deleteRace = async (req: Request, res: Response) => {
         
         if (!id.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({ mensaje: "ID inválido" });
+        }
+
+        if (isUsingInMemoryStore()) {
+            const deletedRace = deleteRaceById(id);
+            if (!deletedRace) {
+                return res.status(404).json({ mensaje: "Raza no encontrada" });
+            }
+            return res.status(200).json({
+                mensaje: "Raza eliminada exitosamente",
+                raza: deletedRace
+            });
         }
 
         const deletedRace = await RaceModel.findByIdAndDelete(id);

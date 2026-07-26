@@ -1,11 +1,16 @@
 import { Request, Response } from 'express';
 import { WeaponModel } from '../models/weapons.js';
+import { isUsingInMemoryStore, weapons as memoryWeapons, createWeapon as createMemoryWeapon, getWeaponById as getMemoryWeaponById, updateWeaponById, deleteWeaponById } from '../database/inMemoryStore.js';
 
 // 1. Crear Arma
 export const createWeapon = async (req: Request, res: Response) => {
     try {
         if (!req.body || Object.keys(req.body).length === 0) {
             return res.status(400).json({ mensaje: "El cuerpo de la petición está vacío" });
+        }
+        if (isUsingInMemoryStore()) {
+            const newWeapon = createMemoryWeapon(req.body);
+            return res.status(201).json({ mensaje: "Arma creada exitosamente", arma: newWeapon });
         }
         const newWeapon = new WeaponModel(req.body);
         await newWeapon.save();
@@ -20,6 +25,9 @@ export const createWeapon = async (req: Request, res: Response) => {
 // 2. Obtener todas las armas
 export const getWeapons = async (req: Request, res: Response) => {
     try {
+        if (isUsingInMemoryStore()) {
+            return res.status(200).json(memoryWeapons);
+        }
         const weapons = await WeaponModel.find();
         return res.status(200).json(weapons);
     } catch (error: any) {
@@ -34,6 +42,14 @@ export const getWeaponById = async (req: Request, res: Response) => {
         
         if (!id.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({ mensaje: "ID inválido" });
+        }
+
+        if (isUsingInMemoryStore()) {
+            const weapon = getMemoryWeaponById(id);
+            if (!weapon) {
+                return res.status(404).json({ mensaje: "Arma no encontrada" });
+            }
+            return res.status(200).json(weapon);
         }
 
         const weapon = await WeaponModel.findById(id);
@@ -55,6 +71,17 @@ export const updateWeapon = async (req: Request, res: Response) => {
         
         if (!id.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({ mensaje: "ID inválido" });
+        }
+
+        if (isUsingInMemoryStore()) {
+            const updatedWeapon = updateWeaponById(id, req.body);
+            if (!updatedWeapon) {
+                return res.status(404).json({ mensaje: "Arma no encontrada" });
+            }
+            return res.status(200).json({
+                mensaje: "Arma actualizada exitosamente",
+                arma: updatedWeapon
+            });
         }
 
         const updatedWeapon = await WeaponModel.findByIdAndUpdate(
@@ -84,6 +111,17 @@ export const deleteWeapon = async (req: Request, res: Response) => {
         
         if (!id.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({ mensaje: "ID inválido" });
+        }
+
+        if (isUsingInMemoryStore()) {
+            const deletedWeapon = deleteWeaponById(id);
+            if (!deletedWeapon) {
+                return res.status(404).json({ mensaje: "Arma no encontrada" });
+            }
+            return res.status(200).json({
+                mensaje: "Arma eliminada exitosamente",
+                arma: deletedWeapon
+            });
         }
 
         const deletedWeapon = await WeaponModel.findByIdAndDelete(id);

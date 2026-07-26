@@ -1,9 +1,13 @@
 import { Request, Response } from 'express';
 import { WarriorModel } from '../models/warriors.js';
+import { isUsingInMemoryStore, warriors as memoryWarriors, createWarrior as createMemoryWarrior, getWarriorById as getMemoryWarriorById, updateWarriorById, deleteWarriorById } from '../database/inMemoryStore.js';
 
 // 1. Obtener todos los guerreros
 export const getWarriors = async (req: Request, res: Response) => {
     try {
+        if (isUsingInMemoryStore()) {
+            return res.status(200).json(memoryWarriors);
+        }
         const warriors = await WarriorModel.find();
         return res.status(200).json(warriors);
     } catch (error: any) {
@@ -18,6 +22,14 @@ export const getWarriorById = async (req: Request, res: Response) => {
         
         if (!id.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({ mensaje: "ID inválido" });
+        }
+
+        if (isUsingInMemoryStore()) {
+            const warrior = getMemoryWarriorById(id);
+            if (!warrior) {
+                return res.status(404).json({ mensaje: "Guerrero no encontrado" });
+            }
+            return res.status(200).json(warrior);
         }
 
         const warrior = await WarriorModel.findById(id);
@@ -38,6 +50,12 @@ export const createWarrior = async (req: Request, res: Response) => {
         if (!req.body || Object.keys(req.body).length === 0) {
             return res.status(400).json({ mensaje: "El cuerpo de la petición está vacío" });
         }
+
+        if (isUsingInMemoryStore()) {
+            const newWarrior = createMemoryWarrior(req.body);
+            return res.status(201).json({ mensaje: "Guerrero creado exitosamente", caballero: newWarrior });
+        }
+
         const newWarrior = new WarriorModel(req.body);
         await newWarrior.save();
         return res.status(201).json({ mensaje: "Guerrero creado exitosamente", caballero: newWarrior });
@@ -55,6 +73,17 @@ export const updateWarrior = async (req: Request, res: Response) => {
         
         if (!id.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({ mensaje: "ID inválido" });
+        }
+
+        if (isUsingInMemoryStore()) {
+            const updatedWarrior = updateWarriorById(id, req.body);
+            if (!updatedWarrior) {
+                return res.status(404).json({ mensaje: "Guerrero no encontrado" });
+            }
+            return res.status(200).json({
+                mensaje: "Actualizado exitosamente",
+                caballero: updatedWarrior
+            });
         }
 
         const updatedWarrior = await WarriorModel.findByIdAndUpdate(
@@ -84,6 +113,17 @@ export const deleteWarrior = async (req: Request, res: Response) => {
         
         if (!id.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({ mensaje: "ID inválido" });
+        }
+
+        if (isUsingInMemoryStore()) {
+            const deletedWarrior = deleteWarriorById(id);
+            if (!deletedWarrior) {
+                return res.status(404).json({ mensaje: "Guerrero no encontrado" });
+            }
+            return res.status(200).json({
+                mensaje: "Guerrero eliminado exitosamente",
+                caballero: deletedWarrior
+            });
         }
 
         const deletedWarrior = await WarriorModel.findByIdAndDelete(id);
