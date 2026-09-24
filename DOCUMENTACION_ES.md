@@ -1,29 +1,107 @@
-# Documentación en español
+# Documentación del proyecto
 
 ## Visión general
 
-Animal Warriors API es una API REST escrita en TypeScript con Express y MongoDB. Además, incluye una SPA sencilla en el archivo index.html para probar CRUD de forma visual y para automatizar pruebas con Playwright.
+Animal Warriors API es una API REST construida con Node.js, Express y TypeScript. Su propósito es gestionar caballeros, armas y razas del juego Animal Warriors.
+
+La aplicación funciona como un backend con una capa visual mínima servida desde el mismo servidor para pruebas rápidas, validación desde el navegador y consumo con Postman. No es una app web completa ni un frontend independiente.
+
+## Estado actual
+
+El proyecto está funcionando con estas capacidades:
+
+- Backend en Node.js + Express + TypeScript
+- Persistencia real con MongoDB Atlas cuando `MONGO_URI` está configurado
+- Fallback a almacenamiento en memoria si MongoDB no está disponible
+- Validación para evitar nombres duplicados de caballeros
+- Endpoints con compatibilidad en español e inglés
+- Interfaz web mínima integrada con la API
+- Pruebas y validaciones ejecutadas en local
+
+## Estructura actual
+
+```text
+animal-warriors-api/
+├── src/
+│   ├── controllers/
+│   │   ├── races.controller.ts
+│   │   ├── warrior.controller.ts
+│   │   └── weapons.controller.ts
+│   ├── database/
+│   │   ├── db.ts
+│   │   ├── inMemoryStore.ts
+│   │   └── seed.ts
+│   ├── models/
+│   │   ├── races.ts
+│   │   ├── warriors.ts
+│   │   └── weapons.ts
+│   ├── __tests__/
+│   │   └── server.test.ts
+│   └── server.ts
+├── index.html
+├── .env
+├── .env.example
+├── package.json
+├── package-lock.json
+├── tsconfig.json
+├── render.yaml
+├── README.md
+├── DOCUMENTACION_ES.md
+├── POSTMAN_TESTING.md
+├── VALIDATION_REPORT.md
+├── Animal_Warriors_API.postman_collection.json
+├── scripts/
+│   └── validate-demo.ts
+├── dist/
+├── node_modules/
+└── test-results/
+```
+
+## Cómo funciona la API
+
+La API expone recursos bajo el prefijo `/api/v1`:
+
+- El backend gestiona la lógica de negocio y la persistencia.
+- La interfaz web mínima consume los mismos endpoints del servidor.
+- El origen de datos se reporta en `GET /api/v1/status`.
+- Si MongoDB falla, la app usa datos temporales en memoria para no detener la demo.
 
 ## Requisitos
 
-- Node.js 18 o superior
-- npm 9 o superior
-- MongoDB Atlas o una instancia MongoDB accesible
+- Node.js 18+
+- npm
+- MongoDB Atlas o una base MongoDB accesible por red
 
-## Instalación
+## Configuración
 
-```bash
-npm install
-```
-
-Crea un archivo .env con:
+Crear un archivo `.env` con la cadena real:
 
 ```env
 PORT=3000
-MONGO_URI=mongodb+srv://usuario:contraseña@cluster.mongodb.net/animal-warriors?retryWrites=true&w=majority
+MONGO_URI=mongodb+srv://<usuario>:<password>@<cluster>/<database>?retryWrites=true&w=majority
 ```
 
-> Si no quieres usar MongoDB, puedes omitir el archivo `.env` y la aplicación arrancará en modo demo utilizando datos en memoria.
+> Los valores reales deben ir solo en `.env` local; nunca en documentación pública.
+
+## Estado del origen de datos
+
+La API devuelve el estado real del backend en este endpoint:
+
+```bash
+curl http://localhost:3000/api/v1/status
+```
+
+Respuesta esperada:
+
+```json
+{
+  "dataSource": "mongodb",
+  "mongoConfigured": true,
+  "message": "La API está usando MongoDB."
+}
+```
+
+Si el valor es `memory`, entonces la aplicación está usando almacenamiento temporal y no la base de datos real.
 
 ## Ejecutar la API
 
@@ -33,8 +111,6 @@ MONGO_URI=mongodb+srv://usuario:contraseña@cluster.mongodb.net/animal-warriors?
 npm run dev
 ```
 
-> Si no existe `MONGO_URI`, el servidor se ejecutará en modo demo con datos de ejemplo en memoria.
-
 ### Producción
 
 ```bash
@@ -42,137 +118,135 @@ npm run build
 npm start
 ```
 
-## Ejecutar la app web
+## URLs relevantes
 
-La interfaz web está en el archivo `index.html` y ahora también se sirve desde el backend cuando ejecutas el servidor.
+- Local: `http://localhost:3000/`
+- API local: `http://localhost:3000/api/v1`
+- Estado de datos: `http://localhost:3000/api/v1/status`
+- Despliegue actual: `https://animal-warriors-api.onrender.com/`
 
-Si ejecutas la API localmente con `npm run dev` o `npm start`, abre:
-
-```text
-http://localhost:3000/
-```
-
-o
-
-```text
-http://localhost:3000/api/v1
-```
-
-La app web usa la URL base de la API para cargar y guardar registros. Por defecto en el código local se configura a:
-
-```text
-http://localhost:3000/api/v1
-```
-
-Si prefieres usar un despliegue remoto, cambia manualmente la URL base en la interfaz.
-
-Si prefieres servir la aplicación estática de forma separada, también puedes usar un servidor estático simple.
-
-Ejemplo:
-
-```bash
-python -m http.server 8000
-```
-
-Luego abre:
-
-```text
-http://localhost:8000/
-```
-
-## Endpoints de la API
-
-La API expone los recursos en español y también mantiene rutas antiguas para compatibilidad.
+## Endpoints principales
 
 ### Caballeros
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| GET | /api/v1/caballeros | Obtener todos los caballeros |
-| GET | /api/v1/caballeros/:id | Obtener un caballero por ID |
-| POST | /api/v1/caballeros | Crear un caballero |
-| PATCH | /api/v1/caballeros/:id | Actualizar un caballero |
-| DELETE | /api/v1/caballeros/:id | Eliminar un caballero |
+| GET | `/api/v1/caballeros` | Lista caballeros |
+| GET | `/api/v1/caballeros/:id` | Obtiene uno por ID |
+| POST | `/api/v1/caballeros` | Crea un caballero |
+| PATCH | `/api/v1/caballeros/:id` | Actualiza un caballero |
+| DELETE | `/api/v1/caballeros/:id` | Elimina un caballero |
 
-Rutas antiguas compatibles:
+Compatibilidad:
 
-- /api/v1/warriors
-- /api/v1/warriors/:id
+- `/api/v1/warriors`
+- `/api/v1/warriors/:id`
 
 ### Armas
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| GET | /api/v1/armas | Obtener todas las armas |
-| GET | /api/v1/armas/:id | Obtener un arma por ID |
-| POST | /api/v1/armas | Crear un arma |
-| PATCH | /api/v1/armas/:id | Actualizar un arma |
-| DELETE | /api/v1/armas/:id | Eliminar un arma |
+| GET | `/api/v1/armas` | Lista armas |
+| GET | `/api/v1/armas/:id` | Obtiene una por ID |
+| POST | `/api/v1/armas` | Crea una arma |
+| PATCH | `/api/v1/armas/:id` | Actualiza una arma |
+| DELETE | `/api/v1/armas/:id` | Elimina una arma |
 
-Rutas antiguas compatibles:
+Compatibilidad:
 
-- /api/v1/weapons
-- /api/v1/weapons/:id
+- `/api/v1/weapons`
+- `/api/v1/weapons/:id`
 
 ### Razas
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| GET | /api/v1/razas | Obtener todas las razas |
-| GET | /api/v1/razas/:id | Obtener una raza por ID |
-| POST | /api/v1/razas | Crear una raza |
-| PATCH | /api/v1/razas/:id | Actualizar una raza |
-| DELETE | /api/v1/razas/:id | Eliminar una raza |
+| GET | `/api/v1/razas` | Lista razas |
+| GET | `/api/v1/razas/:id` | Obtiene una por ID |
+| POST | `/api/v1/razas` | Crea una raza |
+| PATCH | `/api/v1/razas/:id` | Actualiza una raza |
+| DELETE | `/api/v1/razas/:id` | Elimina una raza |
 
-Rutas antiguas compatibles:
+Compatibilidad:
 
-- /api/v1/races
-- /api/v1/races/:id
+- `/api/v1/races`
+- `/api/v1/races/:id`
 
-## Ejemplos de uso
+## Regla de negocio: nombres duplicados
 
-### Crear un caballero
+Antes de guardar un caballero, la API comprueba si ya existe otro con el mismo nombre.
 
-```bash
-curl -X POST http://localhost:3000/api/v1/caballeros \
-  -H "Content-Type: application/json" \
-  -d '{
-    "nombre": "Aldo",
-    "razaId": "64f1...",
-    "armaId": "64f2...",
-    "vida": 120,
-    "cosmo": 80,
-    "armadura": {
-      "nombre": "Escudo Solar",
-      "resistencia": 18
-    },
-    "poderes": [
-      {
-        "nombre": "Rayo",
-        "danoBase": 24,
-        "consumoCosmo": 12
-      }
-    ]
-  }'
+### Resultado esperado
+
+- Primera creación: `201 Created`
+- Repetición del mismo nombre: `409 Conflict`
+
+```json
+{
+  "mensaje": "Ya existe un caballero con ese nombre."
+}
 ```
 
-### Obtener todas las razas
+Esto se cumple tanto en modo memoria como con MongoDB activo.
 
-```bash
-curl http://localhost:3000/api/v1/razas
+## Prueba con Postman
+
+Método: `POST`
+URL: `http://localhost:3000/api/v1/caballeros`
+
+Body:
+
+```json
+{
+  "nombre": "Ares",
+  "razaId": "r-1",
+  "armaId": "w-1",
+  "vida": 120,
+  "cosmo": 85,
+  "armadura": {
+    "nombre": "Escudo Solar",
+    "resistencia": 18
+  },
+  "poderes": [
+    {
+      "nombre": "Rayo",
+      "danoBase": 24,
+      "consumoCosmo": 12
+    }
+  ]
+}
 ```
 
-## Pruebas automáticas
+Verificación:
 
-El proyecto incluye un ejemplo de prueba con Playwright para crear un caballero desde la interfaz web.
-
-```bash
-npx playwright test playwright-example.spec.js --headed
+```http
+GET http://localhost:3000/api/v1/caballeros
+GET http://localhost:3000/api/v1/status
 ```
 
-## Convenciones
+Si `dataSource` es `memory`, los registros creados desde Postman solo existirán en la sesión actual del proceso y no persistirán en MongoDB.
 
-- Los nombres de los recursos y mensajes de respuesta están en español.
-- Los métodos HTTP siguen el estándar REST.
-- La app web usa los mismos nombres de recursos que la API.
-- Se mantiene compatibilidad con las rutas antiguas en inglés.
+## Pruebas
+
+```bash
+npm test
+```
+
+Las pruebas actuales validan:
+
+- CORS
+- Rechazo de nombres duplicados
+- Estado del origen de datos
+
+## Nota final
+
+La aplicación se comporta como una API REST con soporte de demostración en memoria y persistencia real con MongoDB. Para que la interfaz, Postman y la base de datos reflejen exactamente los mismos registros, la app debe arrancar con `MONGO_URI` válido y la conexión debe quedar activa.
+
+La capa visual es auxiliar y no reemplaza a un frontend completo; para observar cambios en la UI, debes recargar la página o volver a consultar la API.
+
+## Recursos adicionales
+
+- `Animal_Warriors_API.postman_collection.json`
+- `POSTMAN_TESTING.md`
+- `VALIDATION_REPORT.md`
+- `README.md`

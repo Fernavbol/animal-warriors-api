@@ -78,13 +78,29 @@ export const weapons: InMemoryWeapon[] = [...defaultWeapons];
 export const races: InMemoryRace[] = [...defaultRaces];
 
 const findItem = <T extends { _id: string }>(list: T[], id: string) => list.find((item) => item._id === id);
+const normalizeName = (value: string) => value.trim();
 
 export const getWarriorById = (id: string) => findItem(warriors, id);
 export const getWeaponById = (id: string) => findItem(weapons, id);
 export const getRaceById = (id: string) => findItem(races, id);
 
 export const createWarrior = (data: Omit<InMemoryWarrior, '_id'>) => {
-  const newWarrior = { _id: generateId(), ...data };
+  const nombre = normalizeName(data.nombre ?? '');
+
+  if (!nombre) {
+    const error = new Error('El nombre del caballero es obligatorio.');
+    (error as Error & { code?: string }).code = 'INVALID_WARRIOR_NAME';
+    throw error;
+  }
+
+  const exists = warriors.some((warrior) => normalizeName(warrior.nombre).toLowerCase() === nombre.toLowerCase());
+  if (exists) {
+    const error = new Error('Ya existe un caballero con ese nombre.');
+    (error as Error & { code?: string }).code = 'DUPLICATE_WARRIOR_NAME';
+    throw error;
+  }
+
+  const newWarrior = { _id: generateId(), ...data, nombre };
   warriors.push(newWarrior);
   return newWarrior;
 };

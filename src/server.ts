@@ -11,10 +11,25 @@ import { createWeapon, updateWeapon, getWeapons, getWeaponById, deleteWeapon } f
 import { createRace, updateRace, getRaces, getRaceById, deleteRace } from './controllers/races.controller.js';
 import { seedDatabase } from './database/seed.js';
 import { setUseInMemoryStore } from './database/inMemoryStore.js';
+
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
-const MONGO_URI = process.env.MONGO_URI || "";
+const getMongoUri = () => process.env.MONGO_URI || '';
+const isMongoReady = () => Boolean(getMongoUri()) && mongoose.connection.readyState === 1;
+const getDataSourceStatus = () => {
+    const mongoConfigured = Boolean(getMongoUri());
+    const mongoReady = isMongoReady();
+    return {
+        dataSource: mongoReady ? 'mongodb' : 'memory',
+        mongoConfigured,
+        message: mongoReady
+            ? 'La API está usando MongoDB.'
+            : mongoConfigured
+                ? 'La API está usando almacenamiento en memoria porque MongoDB no está conectado. Revisa la cadena de conexión y reinicia la aplicación.'
+                : 'La API está usando almacenamiento en memoria porque no hay MONGO_URI. Configúralo para ver los mismos datos en Postman, UI y base de datos.'
+    };
+};
 const ALLOWED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000', 'http://localhost:3000', 'http://127.0.0.1:3000', 'https://animal-warriors-api.onrender.com'];
 
 export const createApp = () => {
@@ -22,9 +37,11 @@ export const createApp = () => {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
     const publicDir = path.join(__dirname, '..');
+    const mongoUri = getMongoUri();
+    const mongoReady = isMongoReady();
 
-    if (!MONGO_URI) {
-        console.warn('⚠️ La variable de entorno MONGO_URI no está definida. La aplicación se ejecutará en modo demo con datos en memoria.');
+    if (!mongoUri || !mongoReady) {
+        console.warn('⚠️ MongoDB no está conectado; la aplicación usará almacenamiento en memoria hasta que la conexión esté disponible.');
         setUseInMemoryStore(true);
     } else {
         setUseInMemoryStore(false);
@@ -40,8 +57,13 @@ export const createApp = () => {
 
         return res.json({
             name: 'animal-warriors-api',
-            message: 'Use /api/v1/warriors, /api/v1/races, or /api/v1/weapons',
+            ...getDataSourceStatus(),
+            message: 'Use /api/v1/warriors, /api/v1/races, or /api/v1/weapons'
         });
+    });
+
+    app.get('/api/v1/status', (req, res) => {
+        res.json(getDataSourceStatus());
     });
 
     app.use((req, res, next) => {
@@ -112,12 +134,13 @@ export const createApp = () => {
 // --- CONEXIÓN A MONGODB ---
 const connectToDatabase = async (): Promise<boolean> => {
     try {
-        if (!MONGO_URI) {
+        const mongoUri = getMongoUri();
+        if (!mongoUri) {
             console.warn('⚠️ La variable de entorno MONGO_URI no está definida. El servidor iniciará en modo demo con datos en memoria.');
             setUseInMemoryStore(true);
             return false;
         }
-        await mongoose.connect(MONGO_URI);
+        await mongoose.connect(mongoUri);
         console.log('✅ Conectado exitosamente a MongoDB Atlas');
         return true;
     } catch (error) {
